@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pytanie na całe życie 💖</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❤️</text></svg>">
+<style>
+:root{--bg:#ffe3e8;--ink:#3a0f1f;--rose:#e0245e;--rose2:#b81a4a;--card:#fff8f9;--muted:#7a4a58;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2a0b17;--ink:#ffe9ee;--rose:#ff5c8a;--rose2:#ff7da0;--card:#3d1424;--muted:#e5b3c1}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;display:flex;align-items:center;justify-content:center;padding:16px;overflow-x:hidden}
+.card{background:var(--card);border-radius:28px 28px 28px 6px;padding:32px 24px;max-width:460px;width:100%;text-align:center;box-shadow:6px 6px 0 var(--rose)}
+.emoji{font-size:84px;line-height:1;display:block;margin-bottom:8px}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(26px,7vw,36px);line-height:1.2;margin:8px 0}
+p{color:var(--muted);font-size:17px;line-height:1.5;margin:8px 0 22px}
+.btns{display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap}
+button{font:inherit;font-weight:700;border:0;border-radius:999px;cursor:pointer;padding:14px 28px;transition:transform .15s}
+button:active{transform:scale(.95)}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.yes{background:var(--rose);color:#fff;font-size:18px}
+.no{background:transparent;color:var(--ink);border:2px solid var(--ink);font-size:16px}
+.taunt{min-height:24px;margin-top:16px;font-size:15px;color:var(--rose2);font-weight:700}
+.no.run{position:fixed;z-index:5;transition:left .12s,top .12s;background:var(--card)}
+.bar{height:6px;background:var(--bg);border-radius:3px;margin-top:26px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--rose);width:0;transition:width .4s}
+.fly{position:fixed;top:-40px;font-size:28px;pointer-events:none;animation:fall 3s linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.fly{animation-duration:.01s}button{transition:none}}
+</style>
+</head>
+<body>
+<main class="card" id="card" aria-live="polite"></main>
+<script>
+var noScreens=[
+ {e:"🥺",t:"Naprawdę mówisz „nie”?",p:"Może kliknęło się przypadkiem? Palce czasem robią głupie rzeczy."},
+ {e:"😢",t:"Ale ja już zarezerwowałem stolik…",p:"No dobrze, w głowie. Ale był ładny."},
+ {e:"🍕",t:"Pizza będzie. Z ananasem, jeśli trzeba.",p:"To poważna oferta. Nawet ja nie lubię ananasa."},
+ {e:"🐶",t:"Ten piesek właśnie się załamał.",p:"Nie wiem czyj, ale na pewno się przejął."},
+ {e:"🤖",t:"Błąd systemu: odpowiedź „nie” jest niedostępna",p:"Serio, sprawdziłem w dokumentacji. Spróbuj jeszcze raz."}
+];
+var yesScreens=[
+ {e:"😳",t:"Naprawdę się zgadzasz?",p:"Bo jak klikniesz dalej, nie będzie odwrotu. Chyba."},
+ {e:"🧐",t:"Na pewno na pewno?",p:"Przemyśl to. Masz na to całe 3 sekundy."},
+ {e:"📜",t:"Zapoznałeś się z regulaminem?",p:"Pkt 1: Randka jest super. Pkt 2: Patrz pkt 1."}
+];
+var card=document.getElementById("card"),noCount=0,yesStep=-1,dodges=0;
+var taunts=["","Ups, za wolno!","Prawie!","Spróbuj jeszcze raz 😏","Ten przycisk trenuje od miesięcy.","Może jednak TAK?","Nie da się. Serio.","Kursor to nie wszystko.","Ciekawe, ile jeszcze wytrzymasz.","Daj spokój, kliknij TAK 💖"];
+function dodge(b){
+ var px=-999,py=-999;
+ function move(e){
+  if(e&&e.preventDefault)e.preventDefault();
+  if(e&&e.clientX!==undefined){px=e.clientX;py=e.clientY}
+  var r=b.getBoundingClientRect(),w=r.width||100,h=r.height||48,x,y,t=0;
+  do{x=8+Math.random()*(innerWidth-w-16);y=8+Math.random()*(innerHeight-h-16);t++}
+  while(t<30&&Math.hypot(x+w/2-px,y+h/2-py)<180);
+  b.classList.add("run");b.style.left=x+"px";b.style.top=y+"px";
+  dodges++;var el=document.getElementById("t");if(el)el.textContent=taunts[Math.min(Math.floor(dodges/3),taunts.length-1)];
+  if(document.activeElement===b)b.blur();
+ }
+ ["pointerenter","pointerdown","touchstart","mousedown","click","focus"].forEach(function(ev){b.addEventListener(ev,move,{passive:false})});
+ document.addEventListener("pointermove",function(e){
+  if(!b.isConnected)return;
+  var r=b.getBoundingClientRect();
+  if(Math.hypot(e.clientX-(r.left+r.width/2),e.clientY-(r.top+r.height/2))<70)move(e);
+ });
+}
+function show(s,opts){
+ var yesSize=18+noCount*5;
+ var yesLabel=opts.yes,noLabel=opts.no;
+ card.innerHTML='<span class="emoji">'+s.e+'</span><h1>'+s.t+'</h1><p>'+s.p+'</p><div class="btns">'
+ +'<button class="yes" id="y" style="font-size:'+yesSize+'px;padding:'+(14+noCount*3)+'px '+(28+noCount*6)+'px">'+yesLabel+'</button>'
+ +'<button class="no" id="n">'+noLabel+'</button></div><div class="taunt" id="t"></div><div class="bar"><i id="b"></i></div>';
+ document.getElementById("b").style.width=opts.prog+"%";
+ document.getElementById("y").onclick=opts.onYes;
+ dodge(document.getElementById("n"));
+}
+function start(){
+ yesStep=-1;
+ show({e:"💌",t:"Czy pójdziesz ze mną na randkę?",p:"Odpowiedz szczerze. Albo tak, jak trzeba."},
+  {yes:"TAK 💖",no:"NIE",prog:0,onYes:nextYes,onNo:nextNo});
+}
+function nextNo(){
+ var s=noScreens[noCount];
+ if(!s){noCount=0;show({e:"😅",t:"Dobra, żartowałem. Jeszcze raz…",p:"Nie ma odwołania. Wracamy do pytania."},{yes:"No dobra, TAK",no:"Dalej NIE",prog:50,onYes:nextYes,onNo:start});return}
+ noCount++;
+ show(s,{yes:"TAK 💖",no:noCount>=noScreens.length?"Ostatni raz NIE":"Dalej NIE",prog:0,onYes:nextYes,onNo:nextNo});
+}
+function nextYes(){
+ yesStep++;
+ var s=yesScreens[yesStep];
+ if(!s){win();return}
+ var prog=Math.round((yesStep+1)/(yesScreens.length+1)*100);
+ show(s,{yes:yesStep==2?"Tak, akceptuję":"Tak, jestem pewien",no:"Hm, jednak nie",prog:prog,
+  onYes:nextYes,onNo:function(){noCount++;show({e:"🙃",t:"Za późno, już się zgodziłeś.",p:"Zapisałem to w kamieniu. Kamień jest z internetu."},{yes:"No dobra, TAK",no:"Dalej NIE",prog:prog,onYes:nextYes,onNo:nextNo})}});
+}
+function win(){
+ card.innerHTML='<span class="emoji">🎉</span><h1>Jest randka!</h1><p>Widok na Żory gwarantowany. Zgłoś się po szczegóły: kiedy i co jemy. Pizza na mnie, ananas opcjonalnie.</p><iframe title="Mapa Żor" src="https://maps.google.com/maps?q=%C5%BBory&t=k&z=14&output=embed" style="width:100%;height:240px;border:0;border-radius:16px;margin-bottom:14px" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe><div class="btns"><a class="yes" style="text-decoration:none;border-radius:999px;padding:12px 24px;font-weight:700" href="https://www.google.com/maps/search/?api=1&query=%C5%BBory" target="_blank" rel="noopener">Otwórz w Google Maps 📍</a></div><div class="bar"><i style="width:100%"></i></div>';
+ var f=["💖","🌹","🍕","🎉","💘","🥰"];
+ for(var i=0;i<40;i++){(function(i){setTimeout(function(){var d=document.createElement("span");d.className="fly";d.textContent=f[i%f.length];d.style.left=Math.random()*100+"vw";document.body.appendChild(d);setTimeout(function(){d.remove()},3100)},i*80)})(i)}
+}
+start();
+</script>
+</body>
+</html>
